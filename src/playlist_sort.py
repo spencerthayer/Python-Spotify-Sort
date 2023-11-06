@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.utils import shuffle
 import os
 
 # Ensure the directory exists
@@ -12,46 +13,53 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 # Construct the path to the data directory
 data_dir = os.path.join(script_dir, '..', 'data')
 
-def nearest_neighbor_sort(features_df):
-    # Extracting feature values
-    features = features_df[['danceability', 'energy', 'key', 'loudness', 'mode', 
+def enhanced_nearest_neighbor_sort(features_df):
+    # Shuffle the DataFrame to remove any bias due to initial ordering
+    shuffled_df = shuffle(features_df, random_state=42).reset_index(drop=True)
+    features = shuffled_df[['danceability', 'energy', 'key', 'loudness', 'mode', 
                             'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']].values
-
-    # Compute distance matrix
     distances = euclidean_distances(features)
 
-    # Start from the first track
-    current_index = 0
-    path = [current_index]
+    # Enhanced nearest neighbor sort: considering all possible starting points
+    best_length = np.inf
+    best_path = []
 
-    # Nearest neighbor algorithm
-    for i in range(len(features) - 1):
-        remaining_indices = np.setdiff1d(np.arange(len(features)), path)
-        next_index = remaining_indices[np.argmin(distances[current_index, remaining_indices])]
-        path.append(next_index)
-        current_index = next_index
+    for start_index in range(len(features)):
+        current_index = start_index
+        path = [current_index]
+        length = 0
 
-    sorted_df = features_df.iloc[path].reset_index(drop=True)
+        for i in range(len(features) - 1):
+            remaining_indices = np.setdiff1d(np.arange(len(features)), path)
+            next_index = remaining_indices[np.argmin(distances[current_index, remaining_indices])]
+            length += distances[current_index, next_index]
+            path.append(next_index)
+            current_index = next_index
+
+        # Check if the current path is the shortest one found so far
+        if length < best_length:
+            best_length = length
+            best_path = path
+
+    # Reorder the original DataFrame according to the best path found
+    sorted_df = features_df.iloc[best_path].reset_index(drop=True)
+    # Add a 'new_order' column representing the new order
+    sorted_df['new_order'] = np.arange(1, len(sorted_df) + 1)
     return sorted_df
 
 def main():
-    print("Sorting playlist...")
-
-    # Load track features
+    # Load the playlist features from the CSV file
     input_file = os.path.join(data_dir, 'playlist_features.csv')
-    playlist_features = pd.read_csv(input_file)
-
-    # Sort tracks using nearest neighbor algorithm
-    sorted_playlist = nearest_neighbor_sort(playlist_features)
-
-    # Add a new_order column to represent the new order of the tracks
-    sorted_playlist['new_order'] = sorted_playlist.index + 1
-
-    # Save sorted playlist
+    features_df = pd.read_csv(input_file)
+    
+    # Run the enhanced nearest neighbor sort
+    sorted_playlist = enhanced_nearest_neighbor_sort(features_df)
+    
+    # Save the sorted playlist to a new CSV file
     output_file = os.path.join(data_dir, 'playlist_sorted.csv')
     sorted_playlist.to_csv(output_file, index=False)
+    
+    print('Playlist sorted and saved to', output_file)
 
-    print("Playlist sorted and saved to 'playlist_sorted.csv'")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
