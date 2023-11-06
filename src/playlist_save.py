@@ -1,14 +1,8 @@
 import csv
-from dotenv import load_dotenv
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotify_client import get_spotify_client, get_playlist_items
 import os
 
-load_dotenv()
-
-scope = "playlist-modify-public playlist-modify-private user-library-read"
-
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
+sp = get_spotify_client()
 
 playlist = os.getenv("PLAYLIST")
 
@@ -16,26 +10,21 @@ playlist = os.getenv("PLAYLIST")
 playlist_len = sp.playlist(playlist_id=playlist)["tracks"]["total"]
 
 # read result in chunks of 100
-results = {
-    "items": [],
-}
-for i in range(0, playlist_len, 100):
-    new_results = sp.playlist_items(fields=["items"], playlist_id=playlist, limit=100, offset=i)
-    results["items"].extend(new_results["items"])
+results = get_playlist_items(sp, playlist)
 
 for idx, item in enumerate(results["items"], 1):
     track = item["track"]
     print(idx, track["artists"][0]["name"], " – ", track["name"])
 
 # get all track uri's from results
-track_uris = list(map(lambda item: item["track"]["uri"], results["items"]))
+track_uris = [item["track"]["uri"] for item in results["items"]]
 features = []
-# get features for each track in chuncks of 100
+# get features for each track in chunks of 100
 for i in range(0, len(track_uris), 100):
     features.extend(sp.audio_features(track_uris[i:i+100]))
 
 # save track features to csv
-with open("spotify_features.csv", "w") as csvfile:
+with open("../data/playlist_features.csv", "w") as csvfile:
     fieldnames = [
         "idx",
         "name",

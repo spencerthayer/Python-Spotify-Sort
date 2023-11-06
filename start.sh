@@ -2,7 +2,7 @@
 
 printf '\033c'; clear;
 
-rm *.csv;
+rm ./data/*.csv;
 
 # Check if a Python package is installed
 function check_package() {

@@ -20,7 +20,7 @@ def solve_tsp_simulated_annealing_debug(*args, **kwargs):
     print("TSP solving completed in", end_time - start_time, "seconds")
     return result
 
-filename = "spotify_features.csv"
+filename = "playlist_features.csv"
 
 def try_type(value):
     try:
@@ -148,7 +148,7 @@ print("TSP solved, writing to CSV...")
 print(f"Time taken: {end_time - start_time:.2f} seconds")
 
 # Save sorted tracks to CSV
-with open("sorted_tracks.csv", "w") as csvfile:
+with open("playlist_sorted.csv", "w") as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow([
         "track",
