@@ -2,7 +2,10 @@
 
 printf '\033c'; clear;
 
-rm ./data/*.csv;
+# rm data/*.csv;
+
+#  brew install pipx
+#  pipx install poetry
 
 # Check if a Python package is installed
 function check_package() {
@@ -26,6 +29,6 @@ while IFS= read -r line; do
     ensure_package $pkg_name $full_dependency
 done < requirements.txt
 
-python save_playlist_features.py && 
-python sort_playlist.py && 
-python reorder_playlist.py
+python src/playlist_save.py && 
+python src/playlist_sort.py && 
+python src/playlist_reorder.py;

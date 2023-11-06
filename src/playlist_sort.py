@@ -3,6 +3,15 @@ import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 import os
 
+# Ensure the directory exists
+os.makedirs(os.path.dirname('../data/'), exist_ok=True)
+
+# Get the directory of the current script
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Construct the path to the data directory
+data_dir = os.path.join(script_dir, '..', 'data')
+
 def nearest_neighbor_sort(features_df):
     # Extracting feature values
     features = features_df[['danceability', 'energy', 'key', 'loudness', 'mode', 
@@ -29,7 +38,7 @@ def main():
     print("Sorting playlist...")
 
     # Load track features
-    input_file = os.path.join('../data', 'playlist_features.csv')
+    input_file = os.path.join(data_dir, 'playlist_features.csv')
     playlist_features = pd.read_csv(input_file)
 
     # Sort tracks using nearest neighbor algorithm
@@ -39,7 +48,7 @@ def main():
     sorted_playlist['new_order'] = sorted_playlist.index + 1
 
     # Save sorted playlist
-    output_file = os.path.join('../data', 'playlist_sorted.csv')
+    output_file = os.path.join(data_dir, 'playlist_sorted.csv')
     sorted_playlist.to_csv(output_file, index=False)
 
     print("Playlist sorted and saved to 'playlist_sorted.csv'")

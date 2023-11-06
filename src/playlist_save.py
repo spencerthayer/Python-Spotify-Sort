@@ -2,6 +2,15 @@ import csv
 from spotify_client import get_spotify_client, get_playlist_items
 import os
 
+# Ensure the directory exists
+os.makedirs(os.path.dirname('../data/'), exist_ok=True)
+
+# Get the directory of the current script
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Construct the path to the data directory
+data_dir = os.path.join(script_dir, '..', 'data')
+
 sp = get_spotify_client()
 
 playlist = os.getenv("PLAYLIST")
@@ -24,7 +33,8 @@ for i in range(0, len(track_uris), 100):
     features.extend(sp.audio_features(track_uris[i:i+100]))
 
 # save track features to csv
-with open("../data/playlist_features.csv", "w") as csvfile:
+# with open("../data/playlist_features.csv", "w", newline='') as csvfile:
+with open(os.path.join(data_dir, 'playlist_features.csv'), 'w', newline='') as csvfile:
     fieldnames = [
         "idx",
         "name",

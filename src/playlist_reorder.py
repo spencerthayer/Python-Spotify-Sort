@@ -1,7 +1,16 @@
+import os
 import csv
 from spotify_client import get_spotify_client, get_playlist_items
 from time import sleep
-import os
+
+# Ensure the directory exists
+os.makedirs(os.path.dirname('../data/'), exist_ok=True)
+
+# Get the directory of the current script
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Construct the path to the data directory
+data_dir = os.path.join(script_dir, '..', 'data')
 
 sp = get_spotify_client()
 
@@ -11,7 +20,7 @@ playlist = os.getenv("PLAYLIST")
 results = get_playlist_items(sp, playlist)
 
 # open playlist_sorted.csv and read into a list, sort on new_order
-with open("../data/playlist_sorted.csv", "r") as csvfile:
+with open(os.path.join(data_dir, "playlist_sorted.csv"), "r") as csvfile:
     reader = csv.reader(csvfile)
     # read tracks zip with header
     header, *rows = reader
