@@ -33,43 +33,54 @@ for i in range(0, len(track_uris), 100):
     features.extend(sp.audio_features(track_uris[i:i+100]))
 
 # save track features to csv
-# with open("../data/playlist_features.csv", "w", newline='') as csvfile:
 with open(os.path.join(data_dir, 'playlist_features.csv'), 'w', newline='') as csvfile:
+    # Define the basic fieldnames, keeping 'idx' and 'name' at the front
+    # and sorting the rest alphabetically
     fieldnames = [
         "idx",
         "name",
-        "uri",
-        "key",
-        "mode",
-        "danceability",
-        "energy",
-        "loudness",
+        "artist",  # New field for the artist name
         "acousticness",
+        "danceability",
+        "duration_ms",
+        "energy",
         "instrumentalness",
+        "key",
         "liveness",
-        "valence",
+        "loudness",
+        "mode",
+        "speechiness",
         "tempo",
+        "time_signature",
+        "uri",
+        "valence"
     ]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
     for idx, item in enumerate(results["items"], 1):
         track = item["track"]
         feature = features[idx - 1]
+        artist_name = track["artists"][0]["name"] if track["artists"] else ""
         writer.writerow(
             {
                 "idx": idx,
                 "name": track["name"],
-                "uri": track["uri"],
-                "key": feature["key"],
-                "mode": feature["mode"],
-                "danceability": feature["danceability"],
-                "energy": feature["energy"],
-                "loudness": feature["loudness"],
+                "artist": artist_name,  # Extract the artist name from the track data
+                # Add the rest of the features
                 "acousticness": feature["acousticness"],
+                "danceability": feature["danceability"],
+                "duration_ms": feature["duration_ms"],
+                "energy": feature["energy"],
                 "instrumentalness": feature["instrumentalness"],
+                "key": feature["key"],
                 "liveness": feature["liveness"],
-                "valence": feature["valence"],
+                "loudness": feature["loudness"],
+                "mode": feature["mode"],
+                "speechiness": feature["speechiness"],
                 "tempo": feature["tempo"],
+                "time_signature": feature["time_signature"],
+                "uri": track["uri"],
+                "valence": feature["valence"]
             }
         )
 

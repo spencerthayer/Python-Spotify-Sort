@@ -52,12 +52,27 @@ def calculate_fitness(order, features_df):
     # Fitness calculation
     return key_compatibility - tempo_smoothness - total_distance
 
-# Placeholder function to apply discrete velocity to particles
-def apply_discrete_velocity(particle, discrete_velocity):
-    # Implement the logic to update particle index based on discrete_velocity
-    # This should be a permutation of the tracks indices
-    # For example, if the velocity suggests swapping two tracks, implement this swap
-    return particle # This line is a placeholder and should be replaced with actual implementation
+# Function to apply discrete velocity to particles
+def apply_discrete_velocity(particle, discrete_velocity, features_df):
+    # Interpret discrete_velocity as a series of pairwise swaps
+    for i in range(len(particle)):
+        if discrete_velocity[i] != 0:
+            swap_index = (i + discrete_velocity[i]) % len(particle)  # Ensure swap_index is within bounds
+            # Perform the swap if it improves the key and tempo compatibility
+            if should_swap(particle[i], particle[swap_index], features_df):
+                particle[i], particle[swap_index] = particle[swap_index], particle[i]
+    return particle
+
+def should_swap(track_index1, track_index2, features_df):
+    # Calculate key and tempo compatibility
+    key1, key2 = features_df.iloc[track_index1]['key'], features_df.iloc[track_index2]['key']
+    tempo1, tempo2 = features_df.iloc[track_index1]['tempo'], features_df.iloc[track_index2]['tempo']
+    
+    # Decide to swap if keys match or tempos are closer after the swap
+    key_match = key1 == key2
+    tempo_closer = abs(tempo1 - tempo2) < 5  # Example threshold for 'closeness'
+    
+    return key_match or tempo_closer
 
 # PSO Algorithm
 def particle_swarm_optimization(features_df, num_particles=30, iterations=100):
@@ -88,7 +103,7 @@ def particle_swarm_optimization(features_df, num_particles=30, iterations=100):
             discrete_velocity = np.round(velocities[i]).astype(int)
             
             # Update particles using discrete velocity
-            particles[i] = apply_discrete_velocity(particles[i], discrete_velocity)
+            particles[i] = apply_discrete_velocity(particles[i], discrete_velocity, features_df)
             
             # Update personal bests
             current_fitness = calculate_fitness(particles[i], features_df)
