@@ -3,7 +3,6 @@ python_tsp
 spotipy
 pandas
 tqdm
-scikit-learn
 matplotlib
 seaborn
 scipy
