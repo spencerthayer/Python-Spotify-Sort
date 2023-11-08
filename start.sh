@@ -2,7 +2,11 @@
 
 printf '\033c'; clear;
 
-rm ./data/*.csv;
+if ls ./data/*.csv 1> /dev/null 2>&1; then
+    rm ./data/*.csv
+else
+    echo "No CSV files to remove."
+fi
 
 #  brew install pipx
 #  pipx install poetry
