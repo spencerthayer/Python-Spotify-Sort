@@ -3,15 +3,15 @@
     "iterations": 1000,
     "ID": "72niSJJtWPbvolsql4vQO9",
     "weights": {
-        "danceability": 4,
-        "energy": 4,
+        "danceability": 2,
+        "energy": 1,
         "instrumentalness": 1,
-        "key": 8,
+        "key": 20,
         "liveness": 1,
         "loudness": 1,
         "mode": 1,
         "speechiness": 1,
-        "tempo": 10,
+        "tempo": 4,
         "time_signature": 1,
         "valence": 1
     }
