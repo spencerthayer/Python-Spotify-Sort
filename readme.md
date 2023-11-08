@@ -1,31 +1,29 @@
-# Python Spotify Sort
-Playlist Optimization using Nearest Neighbor to Solve for the Traveling Salesperson Problem
+# Spotify Playlist Swarm Sorting
 
 ### Overview
 
-**Python Spotify Sort** is an innovative solution designed to optimize the listening experience of a Spotify playlist by rearranging the songs in a manner that ensures a smooth and cohesive transition between consecutive tracks. Drawing inspiration from the Traveling Salesperson Problem (TSP), this script leverages the nearest neighbor algorithm to find an approximate solution to the ordering dilemma.
-
-The Traveling Salesperson Problem is a classic optimization problem, where given a list of cities and the distances between each pair of cities, the task is to find the shortest possible route that visits each city exactly once and returns to the original city. In the context of playlist optimization, each song can be thought of as a city, and the "distance" between songs is determined by the dissimilarity in their features, such as tempo, key, valence, and energy.
+**Python Spotify Sort** is a tool designed to enhance the listening experience by intelligently sorting Spotify playlists. Utilizing the Particle Swarm Optimization (PSO) algorithm, it attempts to create a smooth transition between tracks based on their musical features. PSO is an optimization algorithm that tries to understand the social behavior of travelling ants, flocking birds, schooling fish, or any swarm of particles that moves through a solution space to find an optimal organic ordering.
 
 ### Methodology
 
 #### 1. **Feature Extraction**:
-   The script begins by extracting relevant features of the tracks in the playlist using Spotify's Web API. These features encapsulate various musical aspects of the tracks, such as tempo, danceability, energy, loudness, valence, etc.
+   The application starts by extracting audio features of the tracks using Spotify's Web API. These features include tempo, danceability, energy, and others that characterize the music.
 
-#### 2. **Distance Computation**:
-   The "distance" or dissimilarity between two songs is computed by calculating the Euclidean distance between their feature vectors. This step essentially translates the playlist optimization problem into a TSP, where the cities are songs and distances represent how dissimilar two songs are.
+#### 2. **Fitness Function Definition**:
+   A fitness function is defined to evaluate how well a given sequence of songs matches the desired flow of the playlist. This function takes into account the differences in musical features between consecutive tracks.
 
-#### 3. **Nearest Neighbor Algorithm**:
-   To solve this transformed TSP, the script employs the nearest neighbor algorithm. This heuristic algorithm starts at an arbitrary song and repeatedly visits the nearest unvisited song until all songs are visited. The approach is based on the principle of locality and is known to provide a good approximation to the optimal solution in a relatively short time.
+#### 3. **Particle Swarm Optimization Algorithm**:
+   PSO simulates a flock of birds searching for the best location. In our case, each "bird" or particle represents a potential playlist order. Particles explore the solution space and adjust their positions based on their own experience and that of their neighbors to find the most harmonious playlist sequence.
 
-   The nearest neighbor algorithm is particularly suitable for large playlists as it is computationally less intensive compared to exact algorithms for TSP, while still yielding satisfactory results.
+   Unlike the nearest neighbor algorithm, PSO considers the global best solution found by any particle, which helps in avoiding local minima and tends towards a more globally optimal playlist order.
 
 #### 4. **Playlist Rearrangement**:
-   The script then rearranges the playlist based on the order determined by the nearest neighbor algorithm. This ensures that songs with similar features are placed next to each other, creating a seamless and enjoyable listening experience.
+   Once the optimal sequence is determined, the playlist is rearranged accordingly. This leads to a playlist where the transition between individual songs is smooth but not uniform and predicatble thus enhancing the wholistic listening experience of the playlist in a more organic manner.
+
 
 ### Conclusion
 
-Python Spotify Sort offers an intelligent and efficient approach to playlist optimization. By interpreting the problem through the lens of the Traveling Salesperson Problem and applying the nearest neighbor algorithm, it crafts a playlist where each track naturally flows into the next. The result is a harmonious and engaging auditory journey that enhances the listener's experience.
+**Python Spotify Sort** leverages the robustness of PSO to solve the complex task of playlist sorting. By treating the sequence of songs as a multidimensional space, PSO navigates through various possibilities to find a sequence that provides a cohesive listening experience. The final playlist is a result of a sophisticated computational process, mirroring the natural behavior of swarms.
 
 
 ### Requirements
