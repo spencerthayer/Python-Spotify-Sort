@@ -1,0 +1,23 @@
+.
+├── Python-Spotify-Sort.code-workspace
+├── data
+│   ├── playlist_features.csv
+│   ├── playlist_sorted.csv
+│   └── playlists.json
+├── file-structure.txt
+├── pyproject.toml
+├── readme.md
+├── requirements.txt
+├── scripts
+├── src
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   └── spotify_client.cpython-311.pyc
+│   ├── playlist_reorder.py
+│   ├── playlist_save.py
+│   ├── playlist_sort.py
+│   └── spotify_client.py
+├── start.py
+└── start.sh
+
+5 directories, 16 files
