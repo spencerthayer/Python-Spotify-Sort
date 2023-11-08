@@ -2,7 +2,7 @@
 
 printf '\033c'; clear;
 
-# rm data/*.csv;
+rm ./data/*.csv;
 
 #  brew install pipx
 #  pipx install poetry

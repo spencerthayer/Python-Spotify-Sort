@@ -39,7 +39,7 @@ with open(os.path.join(data_dir, 'playlist_features.csv'), 'w', newline='') as c
     fieldnames = [
         "idx",
         "name",
-        "artist",  # New field for the artist name
+        "artist",
         "acousticness",
         "danceability",
         "duration_ms",
