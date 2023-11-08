@@ -2,6 +2,7 @@ import os
 import csv
 from spotify_client import get_spotify_client, get_playlist_items
 from time import sleep
+import json
 
 # Ensure the directory exists
 os.makedirs(os.path.dirname('../data/'), exist_ok=True)
@@ -14,8 +15,13 @@ data_dir = os.path.join(script_dir, '..', 'data')
 
 sp = get_spotify_client()
 
-# get playlist from .env
-playlist = "72niSJJtWPbvolsql4vQO9"
+# The path to the 'playlists.json' file
+playlists_json_path = os.path.join(data_dir, 'playlists.json')
+
+# Load the playlist ID from the JSON file
+with open(playlists_json_path, 'r') as file:
+    playlists_data = json.load(file)
+    playlist = playlists_data['ID']  # Extract the playlist ID using the new "ID" key
 
 results = get_playlist_items(sp, playlist)
 
@@ -29,7 +35,12 @@ with open(os.path.join(data_dir, "playlist_sorted.csv"), "r") as csvfile:
     # update old_order with old_order from results["items"]
     old_orders = [i["track"]["uri"] for i in results["items"]]
     for track in tracks:
-        track["old_order"] = old_orders.index(track["uri"])
+        print(track["uri"])
+        if track["uri"] in old_orders:
+            track["old_order"] = old_orders.index(track["uri"])
+        else:
+            # handle the case when track["uri"] is not in old_orders
+            pass
 
     tracks = sorted(tracks, key=lambda x: int(x["old_order"]))
 
