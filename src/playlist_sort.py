@@ -26,7 +26,7 @@ playlist_weights = {k: v for k, v in weights.items() if not playlist_id_pattern.
 
 # Debugging print statements
 print('Debugging: Loaded weights from JSON:', playlist_weights)
-print('Debugging: Path to playlists.json:', os.path.join(data_dir, 'playlists.json'))
+# print('Debugging: Path to playlists.json:', os.path.join(data_dir, 'playlists.json'))
 
 # Adjust the PSO parameters based on weights
 num_particles = int(playlist_weights.pop('num_particles'))
