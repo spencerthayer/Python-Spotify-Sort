@@ -35,7 +35,7 @@ with open(os.path.join(data_dir, "playlist_sorted.csv"), "r") as csvfile:
     # update old_order with old_order from results["items"]
     old_orders = [i["track"]["uri"] for i in results["items"]]
     for track in tracks:
-        print(track["uri"])
+        # print(track["uri"])
         if track["uri"] in old_orders:
             track["old_order"] = old_orders.index(track["uri"])
         else:
