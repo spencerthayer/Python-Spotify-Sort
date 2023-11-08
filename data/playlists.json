@@ -1,7 +1,8 @@
 {
     "num_particles": 50,
     "iterations": 1000,
-    "72niSJJtWPbvolsql4vQO9": {
+    "ID": "72niSJJtWPbvolsql4vQO9",
+    "weights": {
         "danceability": 4,
         "energy": 4,
         "instrumentalness": 1,

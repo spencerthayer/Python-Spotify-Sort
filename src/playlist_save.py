@@ -1,25 +1,33 @@
 import csv
 from spotify_client import get_spotify_client, get_playlist_items
 import os
+import json
 
 # Ensure the directory exists
 os.makedirs(os.path.dirname('../data/'), exist_ok=True)
 
 # Get the directory of the current script
-script_dir = os.path.dirname(os.path.realpath(__file__))
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Construct the path to the data directory
+# Construct the absolute path to the 'data' directory
 data_dir = os.path.join(script_dir, '..', 'data')
 
+# The path to the 'playlists.json' file
+playlists_json_path = os.path.join(data_dir, 'playlists.json')
+
+# Load the playlist ID from the JSON file
+with open(playlists_json_path, 'r') as file:
+    playlists_data = json.load(file)
+    playlist_id = playlists_data['ID']  # Extract the playlist ID using the new "ID" key
+
+# The rest of your code follows, properly indented
 sp = get_spotify_client()
 
-playlist = os.getenv("PLAYLIST")
-
-# get length of playlist
-playlist_len = sp.playlist(playlist_id=playlist)["tracks"]["total"]
+# Use the extracted playlist ID
+playlist_len = sp.playlist(playlist_id=playlist_id)["tracks"]["total"]
 
 # read result in chunks of 100
-results = get_playlist_items(sp, playlist)
+results = get_playlist_items(sp, playlist_id)
 
 for idx, item in enumerate(results["items"], 1):
     track = item["track"]
@@ -65,8 +73,7 @@ with open(os.path.join(data_dir, 'playlist_features.csv'), 'w', newline='') as c
             {
                 "idx": idx,
                 "name": track["name"],
-                "artist": artist_name,  # Extract the artist name from the track data
-                # Add the rest of the features
+                "artist": artist_name,
                 "acousticness": feature["acousticness"],
                 "danceability": feature["danceability"],
                 "duration_ms": feature["duration_ms"],

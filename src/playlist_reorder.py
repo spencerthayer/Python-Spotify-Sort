@@ -15,7 +15,7 @@ data_dir = os.path.join(script_dir, '..', 'data')
 sp = get_spotify_client()
 
 # get playlist from .env
-playlist = os.getenv("PLAYLIST")
+playlist = "72niSJJtWPbvolsql4vQO9"
 
 results = get_playlist_items(sp, playlist)
 
