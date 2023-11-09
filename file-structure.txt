@@ -17,7 +17,6 @@
 │   ├── playlist_save.py
 │   ├── playlist_sort.py
 │   └── spotify_client.py
-├── start.py
 └── start.sh
 
-5 directories, 16 files
+5 directories, 15 files
