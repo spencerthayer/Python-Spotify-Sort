@@ -1,18 +1,19 @@
 {
+    "id": "2HI7js7F0FEVMoITKHd94A",
     "num_particles": 50,
     "iterations": 1000,
-    "ID": "72niSJJtWPbvolsql4vQO9",
+    "randomize": false,
     "weights": {
-        "danceability": 2,
-        "energy": 1,
-        "instrumentalness": 1,
-        "key": 20,
-        "liveness": 1,
-        "loudness": 1,
-        "mode": 1,
-        "speechiness": 1,
-        "tempo": 4,
-        "time_signature": 1,
-        "valence": 1
+        "danceability": 1,
+        "energy": 2,
+        "instrumentalness": 0,
+        "key": 6,
+        "liveness": 0,
+        "loudness": 0,
+        "mode": 0,
+        "speechiness": 0,
+        "tempo": 8,
+        "time_signature": 0,
+        "valence": 0
     }
 }

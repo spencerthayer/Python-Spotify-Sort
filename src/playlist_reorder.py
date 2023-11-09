@@ -21,7 +21,7 @@ playlists_json_path = os.path.join(data_dir, 'playlists.json')
 # Load the playlist ID from the JSON file
 with open(playlists_json_path, 'r') as file:
     playlists_data = json.load(file)
-    playlist = playlists_data['ID']  # Extract the playlist ID using the new "ID" key
+    playlist = playlists_data['id']  # Extract the playlist ID using the new "ID" key
 
 results = get_playlist_items(sp, playlist)
 

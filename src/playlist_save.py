@@ -18,7 +18,7 @@ playlists_json_path = os.path.join(data_dir, 'playlists.json')
 # Load the playlist ID from the JSON file
 with open(playlists_json_path, 'r') as file:
     playlists_data = json.load(file)
-    playlist_id = playlists_data['ID']  # Extract the playlist ID using the new "ID" key
+    playlist_id = playlists_data['id']  # Extract the playlist ID using the new "ID" key
 
 # The rest of your code follows, properly indented
 sp = get_spotify_client()
