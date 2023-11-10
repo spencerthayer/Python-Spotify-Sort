@@ -35,6 +35,18 @@ print('Debugging: Loaded weights from JSON:', playlist_weights)
 num_particles = int(playlist_weights.pop('num_particles'))
 iterations = int(playlist_weights.pop('iterations'))
 
+# Circle of Fifths Compatibility Check Function
+def is_compatible_circle_of_fifths(key1, mode1, key2, mode2):
+    # Major keys are 0 steps away on the circle from themselves, minor keys are 3 steps away.
+    major_keys = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5]  # C, G, D, A, E, B, F♯, C♯, A♭, E♭, B♭, F
+    minor_keys = [(k + 3) % 12 for k in major_keys]      # A, E, B, F♯, C♯, G♯, D♯, A♯, F, C, G, D
+
+    key1_circle = major_keys[key1] if mode1 == 1 else minor_keys[key1]
+    key2_circle = major_keys[key2] if mode2 == 1 else minor_keys[key2]
+
+    # Check if keys are the same or adjacent in the Circle of Fifths
+    return key1_circle == key2_circle or abs(key1_circle - key2_circle) == 1
+
 # Define the fitness function
 def calculate_fitness(particle, features_df, weightings):
     # Calculate the fitness of the particle based on the weighted features
@@ -43,10 +55,18 @@ def calculate_fitness(particle, features_df, weightings):
         for feature, weight in weightings.items():
             # Ensure the feature exists in the dataframe to avoid KeyError
             if feature in features_df.columns:
-                fitness += weight * (features_df.at[particle[i], feature] - features_df.at[particle[i+1], feature]) ** 2
+                if feature == 'key':
+                    key1, mode1 = features_df.at[particle[i], 'key'], features_df.at[particle[i], 'mode']
+                    key2, mode2 = features_df.at[particle[i+1], 'key'], features_df.at[particle[i+1], 'mode']
+                    if key1 == -1 or key2 == -1:
+                        fitness += weight
+                    elif not is_compatible_circle_of_fifths(key1, mode1, key2, mode2):
+                        fitness += weight  # Penalize if not compatible in Circle of Fifths
+                else:
+                    fitness += weight * (features_df.at[particle[i], feature] - features_df.at[particle[i+1], feature]) ** 2
     return -fitness  # Negative because we want to minimize the distance
 
-# # # T H E # M A G I C# # #
+# # # # # Particle Swarm Optimization Algorithm
 def particle_swarm_optimization(features_df, weightings, **pso_params):
     # Extracting parameters for the PSO algorithm
     num_particles = pso_params['num_particles']  # Number of particles in the swarm
@@ -140,7 +160,7 @@ def particle_swarm_optimization(features_df, weightings, **pso_params):
 
     # Return the best particle position (global best) at the end of iterations
     return global_best_position
-# # # # # #
+# # # # # End of Particle Swarm Optimization Algorithm
 
 # The rest of the code remains the same up until the main function
 def main():
