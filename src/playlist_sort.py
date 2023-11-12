@@ -46,123 +46,96 @@ def is_compatible_circle_of_fifths(key1, mode1, key2, mode2):
 
     # Check if keys are the same or adjacent in the Circle of Fifths
     return key1_circle == key2_circle or abs(key1_circle - key2_circle) == 1
+    print(f"Distance: {key1_circle}")
 
-# Define the fitness function
+# Function to calculate the distance between two keys in the Circle of Fifths
+def circle_of_fifths_distance(key1, mode1, key2, mode2):
+    major_keys = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5]
+    minor_keys = [(k + 3) % 12 for k in major_keys]
+
+    key1_circle = major_keys[key1] if mode1 == 1 else minor_keys[key1]
+    key2_circle = major_keys[key2] if mode2 == 1 else minor_keys[key2]
+
+    # Calculate the minimum circular distance
+    distance = min(abs(key1_circle - key2_circle), 12 - abs(key1_circle - key2_circle))
+    return distance
+    print(f"Distance: {distance}")
+
 def calculate_fitness(particle, features_df, weightings):
-    # Calculate the fitness of the particle based on the weighted features
+    # Initialize fitness
     fitness = 0
+
+    # Iterate over each track in the particle's ordering
     for i in range(len(particle) - 1):
+        current_track = features_df.iloc[particle[i]]
+        next_track = features_df.iloc[particle[i + 1]]
+
+        # Calculate the weighted difference for each feature
         for feature, weight in weightings.items():
-            # Ensure the feature exists in the dataframe to avoid KeyError
             if feature in features_df.columns:
-                if feature == 'key':
-                    key1, mode1 = features_df.at[particle[i], 'key'], features_df.at[particle[i], 'mode']
-                    key2, mode2 = features_df.at[particle[i+1], 'key'], features_df.at[particle[i+1], 'mode']
-                    if key1 == -1 or key2 == -1:
-                        fitness += weight
-                    elif not is_compatible_circle_of_fifths(key1, mode1, key2, mode2):
-                        fitness += weight  # Penalize if not compatible in Circle of Fifths
-                else:
-                    fitness += weight * (features_df.at[particle[i], feature] - features_df.at[particle[i+1], feature]) ** 2
-    return -fitness  # Negative because we want to minimize the distance
+                difference = abs(current_track[feature] - next_track[feature])
+                fitness += weight * difference
+
+    return -fitness  # Negative because we want to minimize the fitness
+    print(f"Fitness: -{fitness}")
 
 # # # # # Particle Swarm Optimization Algorithm
-def particle_swarm_optimization(features_df, weightings, **pso_params):
-    # Extracting parameters for the PSO algorithm
-    num_particles = pso_params['num_particles']  # Number of particles in the swarm
-    iterations = pso_params['iterations']        # Number of iterations for the algorithm
+def particle_swarm_optimization(features_df, weightings, num_particles, iterations):
+    num_tracks = features_df.shape[0]  # Number of tracks
 
-    # Number of features (tracks) in the dataset
-    num_features = features_df.shape[0]
+    # Initialize particle positions with random permutations of track indices
+    particle_positions = [np.random.permutation(num_tracks) for _ in range(num_particles)]
 
-    # Initialize particle positions
-    if randomize:
-        # If randomize is True, start each particle at a random permutation of the indices (song indices)
-        particle_positions = [np.random.permutation(num_features) for _ in range(num_particles)]
-    else:
-        # If randomize is False, start all particles at the same position, based on sorted feature weights
-        sorted_indices = np.argsort([np.sum(features_df[col] * weightings.get(col, 0)) for col in features_df.columns])
-        # Adjust length of initial position to match num_features
-        if len(sorted_indices) < num_features:
-            # Append missing indices if sorted_indices are fewer than num_features
-            missing_indices = np.setdiff1d(np.arange(num_features), sorted_indices)
-            initial_position = np.concatenate([sorted_indices, missing_indices])
-        elif len(sorted_indices) > num_features:
-            # Truncate sorted_indices if they are more than num_features
-            initial_position = sorted_indices[:num_features]
-        else:
-            initial_position = sorted_indices
-        particle_positions = [initial_position for _ in range(num_particles)]
+    # Initialize particle velocities
+    particle_velocities = [np.zeros(num_tracks) for _ in range(num_particles)]
 
-    # Initialize particle velocities as zero arrays
-    particle_velocities = [np.zeros(num_features) for _ in range(num_particles)]
-
-    # Initialize each particle's best position as its starting position
+    # Initialize best positions and fitness of particles
     particle_best_positions = list(particle_positions)
-
-    # Calculate the initial best fitness values for each particle
     particle_best_fitness = [calculate_fitness(p, features_df, weightings) for p in particle_best_positions]
 
-    # Determine the global best particle position and its fitness
-    global_best_position = particle_best_positions[np.argmin(particle_best_fitness)]
-    global_best_fitness = min(particle_best_fitness)
+    # Determine global best
+    global_best_index = np.argmin(particle_best_fitness)
+    global_best_position = particle_best_positions[global_best_index]
+    global_best_fitness = particle_best_fitness[global_best_index]
 
-    # Initialize adaptive inertia weight parameters
-    w_start = 0.9  # Initial inertia weight
-    w_end = 0.4    # Final inertia weight
-    w = w_start    # Current inertia weight
+    # PSO parameters for inertia, cognitive, and social components
+    w_start, w_end = 0.9, 0.4  # Inertia weight start and end
+    c1, c2 = 2.0, 2.0  # Cognitive and social components
 
-    # Cognitive and social coefficients
-    c1 = 0.5  # Cognitive/personal best weight
-    c2 = 0.6  # Social/global best weight
-
-    # Function to update the velocity and position of particles
-    def update_particles(particle_positions, particle_velocities, particle_best_positions, global_best_position, w):
-        for i in range(num_particles):
-            # Generate random coefficients for velocity update
-            r1, r2 = np.random.rand(2)
-
-            # Update particle velocity
-            particle_velocities[i] = (
-                w * particle_velocities[i] +
-                c1 * r1 * (particle_best_positions[i] - particle_positions[i]) +
-                c2 * r2 * (global_best_position - particle_positions[i])
-            )
-
-            # Update particle position with new velocity
-            particle_positions[i] += particle_velocities[i].astype(int)
-
-            # Correct particle position to ensure it remains a permutation of song indices
-            particle_positions[i] = np.array(list(range(num_features)))[np.argsort(np.argsort(particle_positions[i]))]
-
-    # Main loop of the PSO algorithm
+    # Main loop of PSO
     for iteration in range(iterations):
-        # Update inertia weight linearly between w_start and w_end
-        w = w_start - ((w_start - w_end) * (iteration / iterations))
+        # Linearly decreasing inertia weight
+        w = w_start - ((w_start - w_end) * iteration / iterations)
 
-        # Iterate over each particle
         for i in range(num_particles):
-            # Calculate current fitness for the particle
+            r1, r2 = np.random.rand(2)  # Random coefficients
+
+            # Update velocities
+            particle_velocities[i] = (w * particle_velocities[i] +
+                                      c1 * r1 * (particle_best_positions[i] - particle_positions[i]) +
+                                      c2 * r2 * (global_best_position - particle_positions[i]))
+
+            # Apply the velocity changes and maintain the indices within the range
+            particle_positions[i] = (particle_positions[i] + particle_velocities[i].astype(int)) % num_tracks
+            particle_positions[i] = np.argsort(particle_positions[i])  # Keep the order within the track index range
+
+            # Evaluate current fitness
             current_fitness = calculate_fitness(particle_positions[i], features_df, weightings)
 
-            # Update personal best if current fitness is better
+            # Update best position and fitness for each particle
             if current_fitness < particle_best_fitness[i]:
-                particle_best_fitness[i] = current_fitness
                 particle_best_positions[i] = particle_positions[i]
+                particle_best_fitness[i] = current_fitness
 
-            # Update global best if current fitness is the best overall
+            # Update global best
             if current_fitness < global_best_fitness:
-                global_best_fitness = current_fitness
                 global_best_position = particle_positions[i]
+                global_best_fitness = current_fitness
 
-        # Update particle velocities and positions
-        update_particles(particle_positions, particle_velocities, particle_best_positions, global_best_position, w)
-
-    # Return the best particle position (global best) at the end of iterations
     return global_best_position
 # # # # # End of Particle Swarm Optimization Algorithm
 
-# The rest of the code remains the same up until the main function
+# The main function is where we integrate everything together. It will load the data, run the Particle Swarm Optimization (PSO) algorithm, and then output the sorted playlist.
 def main():
     # Load the playlist features from the CSV file
     input_file = os.path.join(data_dir, 'playlist_features.csv')
@@ -171,8 +144,12 @@ def main():
     # Ensure 'key' is treated as numeric
     features_df['key'] = pd.to_numeric(features_df['key'], errors='coerce')
 
+    # Define the PSO parameters
+    num_particles = int(playlist_weights.pop('num_particles', 50))  # Default to 50 if not found
+    iterations = int(playlist_weights.pop('iterations', 2000))     # Default to 2000 if not found
+
     # Run the PSO algorithm with the weighted features
-    best_order = particle_swarm_optimization(features_df, playlist_weights, randomize=randomize, num_particles=num_particles, iterations=iterations)
+    best_order = particle_swarm_optimization(features_df, playlist_weights, num_particles, iterations)
 
     # Apply the sorted order to the DataFrame
     sorted_playlist = features_df.iloc[best_order].reset_index(drop=True)

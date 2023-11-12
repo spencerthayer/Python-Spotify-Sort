@@ -33,6 +33,7 @@ while IFS= read -r line; do
     ensure_package $pkg_name $full_dependency
 done < requirements.txt
 
-python src/playlist_save.py && 
-python src/playlist_sort.py && 
+python src/playlist_save.py &&
+# python src/playlist_sort.py;
+python src/playlist_sort.py &&
 python src/playlist_reorder.py;
